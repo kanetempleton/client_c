@@ -77,6 +77,6 @@ char getCharForCode(int keyid) {
         case SDLK_9:
             return '9';
         default:
-            return ' ';
+            return '~';
     }
 }

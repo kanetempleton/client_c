@@ -6,7 +6,8 @@ typedef struct {
     int * absY;
     SDL_Texture* plrImage;
     SDL_Renderer* gameRenderer;
-    char * userName;
+    char * playerName;
+    int * playerId;
 } Player;
 Player * newPlayer();
 void initPlayer(Player* p, SDL_Renderer* r, int x, int y);

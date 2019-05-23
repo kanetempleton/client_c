@@ -41,6 +41,8 @@ int addKey(TextInput* field, int keyid) {
         default:
             add=1;
             addMe=getCharForCode(keyid);
+            if (addMe ==  '~')
+                add=0;
             if (*(field->end) >= *(field->maxLength))
                 add=0;
             break;

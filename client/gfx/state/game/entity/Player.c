@@ -7,6 +7,8 @@ Player* newPlayer() {
 void initPlayer(Player* p, SDL_Renderer* r,int x, int y) {
     p->absX = malloc(sizeof(int));
     p->absY = malloc(sizeof(int));
+    p->playerId = malloc(sizeof(int));
+    *(p->playerId) = -1;
     *(p->absX) = x;
     *(p->absY) = y;
     p->gameRenderer = r;

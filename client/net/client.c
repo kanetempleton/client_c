@@ -89,6 +89,7 @@ void * startClient(void * arg) {
         if (sendReady) {
             //printf("gonna send this: {%s}\n",sendText);
             //printf("strlen is %lu\n",strlen(sendText));
+            printf("copying %s\n",sendText);
             strcpy(sendbuf,sendText);
             //printf("sendtext: %s",sendText);
             //printf("sendbuf: %s",sendbuf);
@@ -98,7 +99,7 @@ void * startClient(void * arg) {
             if (send(sockfd,sendbuf,sizeof(sendbuf),MSG_DONTWAIT)==-1) //HA I FINALLY GOT IT
                 perror("send error");
             else {
-                printf("sent {%s}\n",sendText);
+                printf("sent {%s}\n",sendbuf);
             }
             sendReady=0;
             memset(sendbuf, 0, sizeof(sendbuf));
@@ -128,6 +129,8 @@ void * startClient(void * arg) {
 
 
 void sendMessage(char* send) {
-    sendText = send;
+    //memset(sendText,0,sizeof(sendText));
+    strcpy(sendText,send);
+    //sendText = send;
     sendReady = 1;
 }

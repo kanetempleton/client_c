@@ -32,7 +32,7 @@ void initLoginState(LoginState* state, SDL_Renderer* renderer, TTF_Font* font) {
     *(state->passWidth) = 12;
     *(state->passHeight) = 16;
 
-    state->infoText = "";
+    state->infoText = "Please enter your username and password.";
 
     state->stateRenderer = renderer;
     state->substate = malloc(sizeof(int));
@@ -83,6 +83,7 @@ void renderLoginState(LoginState* state, TTF_Font* font, SDL_Color color, int te
     //TTF_Font* Arial = TTF_OpenFont("gfx/assets/fonts/Arial.ttf",16);
     SDL_Rect usernameRect = {190,250,*(state->userWidth),*(state->userHeight)};
     SDL_Rect passwordRect = {190,325,*(state->passWidth),*(state->passHeight)};
+    SDL_Rect infoRect0 = {180,220,100,50};
     SDL_Rect infoRect = {250,220,100,50};
 
     SDL_Surface* Loading_Surf = IMG_Load("gfx/assets/background.png"); //TODO: init the background in init method so we dont have to do it over and over again
@@ -91,7 +92,15 @@ void renderLoginState(LoginState* state, TTF_Font* font, SDL_Color color, int te
     SDL_RenderCopy(state->stateRenderer,Background_Tx,NULL,NULL);
     SDL_DestroyTexture(Background_Tx);
     //SDL_Surface* loginTextSurface = TTF_RenderText_Solid(Arial,state->usernameText->build,White);
-    if (strlen(state->infoText)>0) {
+    if (strlen(state->infoText)>=40) {
+        TTF_SizeText(font,state->infoText,&infoRect0.w,&infoRect0.h);
+        SDL_Surface* infoSurface = TTF_RenderText_Solid(font,state->infoText,Cyan);
+        SDL_Texture* infoTexture = SDL_CreateTextureFromSurface(state->stateRenderer,infoSurface);
+        SDL_FreeSurface(infoSurface);
+        SDL_RenderCopy(state->stateRenderer,infoTexture,NULL,&infoRect0);
+        SDL_DestroyTexture(infoTexture);
+    }
+    else if (strlen(state->infoText)>0) {
         TTF_SizeText(font,state->infoText,&infoRect.w,&infoRect.h);
         SDL_Surface* infoSurface = TTF_RenderText_Solid(font,state->infoText,Cyan);
         SDL_Texture* infoTexture = SDL_CreateTextureFromSurface(state->stateRenderer,infoSurface);
@@ -172,15 +181,10 @@ void processClicks_Login(LoginState* state, int clickX, int clickY) {
                 return;
             switch (i) {
                 case 0: // click "enter" button
-                    printf("username:%s\npassword:%s\n",state->usernameText->build,state->passwordText->build);
-                    sendLoginRequest(state->usernameText->build,state->passwordText->build);
-                    enterLoginSubstate(state,1);
-                    /*char* sendTxt = malloc(sizeof(char)*(strlen(state->usernameText->build) + strlen(state->passwordText->build) + 2));
-                    strcpy(sendTxt,state->usernameText->build);
-                    strcat(sendTxt,";");
-                    strcat(sendTxt,state->passwordText->build);
-                    sendMessage(sendTxt);
-                    free(sendTxt);*/
+                    if ((strlen(state->usernameText->build)>0) && (strlen(state->passwordText->build)>0)) {
+                        sendLoginRequest(state->usernameText->build,state->passwordText->build);
+                        enterLoginSubstate(state,1);
+                    }
                     break;
                 case 1: //click "exit" button
                     quitGUI();

@@ -1,6 +1,6 @@
 #include "GameState.h"
 #include "entity/Player.h"
-
+#include "../../../net/communication/Codes.h"
 GameState* newGameState() {
     return (GameState*) malloc(sizeof(GameState));
 }
@@ -12,6 +12,7 @@ void initGameState(GameState* gs, SDL_Renderer* rend) {
     SDL_FreeSurface(gameFrameSurf);
     gs->you = newPlayer();
     initPlayer(gs->you,rend,50,50);
+    sendPlayerInfoRequest();
 }
 
 void deleteGameState(GameState* gs) {
@@ -30,17 +31,22 @@ void renderGameState(GameState* gs) {
 void processKeys_Game(GameState* gs, int keysym) {
     switch (keysym) {
         case SDLK_DOWN:
-            setPlayerCoordinates(gs->you,*(gs->you->absX),*(gs->you->absY)+1);
+            //setPlayerCoordinates(gs->you,*(gs->you->absX),*(gs->you->absY)+1);
+            sendUpdatePlayerCoordinatesRequest(gs->you,*(gs->you->absX),*(gs->you->absY)+3);
             printf("walk down\n");
             break;
         case SDLK_UP:
-            setPlayerCoordinates(gs->you,*(gs->you->absX),*(gs->you->absY)-1);
+            //setPlayerCoordinates(gs->you,*(gs->you->absX),*(gs->you->absY)-1);
+            sendUpdatePlayerCoordinatesRequest(gs->you,*(gs->you->absX),*(gs->you->absY)-3);
+            printf("you abs = %d,%d\n",*(gs->you->absX),*(gs->you->absY));
             break;
         case SDLK_LEFT:
-            setPlayerCoordinates(gs->you,*(gs->you->absX)-1,*(gs->you->absY));
+            //setPlayerCoordinates(gs->you,*(gs->you->absX)-1,*(gs->you->absY));
+            sendUpdatePlayerCoordinatesRequest(gs->you,*(gs->you->absX)-3,*(gs->you->absY));
             break;
         case SDLK_RIGHT:
-            setPlayerCoordinates(gs->you,*(gs->you->absX)+1,*(gs->you->absY));
+            //setPlayerCoordinates(gs->you,*(gs->you->absX)+1,*(gs->you->absY));
+            sendUpdatePlayerCoordinatesRequest(gs->you,*(gs->you->absX)+3,*(gs->you->absY));
             break;
     }
     /*if (*(state->activeField)==0) {
