@@ -42,13 +42,17 @@ void deleteButton(Button* b) {
 char* getImagePath(Button* b) {
     switch (*(b->buttonID)) {
         case 0:
-            return "gfx/assets/buttons/enter.png";
+            return "data/assets/buttons/enter.png";
+        case 2:
+            return "data/assets/buttons/logout.png";
         default:
-            return "gfx/assets/buttons/exit.png";
+            return "data/assets/buttons/exit.png";
     }
 }
 
 void renderButton(Button* b, SDL_Renderer* renderer) {
+    if (b==NULL)
+        return;
     if (*(b->needsUpdate)&&*(b->isVisible)) {
         SDL_Surface* buttonSurface;
         buttonSurface = IMG_Load(getImagePath(b));

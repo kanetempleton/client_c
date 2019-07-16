@@ -4,7 +4,6 @@
 #include "communication/HandleReplies.h"
 typedef struct {
     int * id;
-    char * sendMessageText;
     ReplyHandler* replyHandler;
 } Client;
 Client * newClient();

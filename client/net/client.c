@@ -89,7 +89,6 @@ void * startClient(void * arg) {
         if (sendReady) {
             //printf("gonna send this: {%s}\n",sendText);
             //printf("strlen is %lu\n",strlen(sendText));
-            printf("copying %s\n",sendText);
             strcpy(sendbuf,sendText);
             //printf("sendtext: %s",sendText);
             //printf("sendbuf: %s",sendbuf);

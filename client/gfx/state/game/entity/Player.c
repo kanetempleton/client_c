@@ -4,15 +4,17 @@ Player* newPlayer() {
     return (Player*)malloc(sizeof(Player));
 }
 
-void initPlayer(Player* p, SDL_Renderer* r,int x, int y) {
+void initPlayer(Player* p, SDL_Renderer* r) {
     p->absX = malloc(sizeof(int));
     p->absY = malloc(sizeof(int));
     p->playerId = malloc(sizeof(int));
+    p->mapSection = malloc(sizeof(int));
     *(p->playerId) = -1;
-    *(p->absX) = x;
-    *(p->absY) = y;
+    *(p->absX) = -1;
+    *(p->absY) = -1;
+    *(p->mapSection) = -1;
     p->gameRenderer = r;
-    SDL_Surface* plrIconSurf= IMG_Load("gfx/assets/entity/player.png");
+    SDL_Surface* plrIconSurf= IMG_Load("data/assets/entity/player.png");
     p->plrImage = SDL_CreateTextureFromSurface(r,plrIconSurf);
     SDL_FreeSurface(plrIconSurf);
 }
@@ -20,12 +22,21 @@ void initPlayer(Player* p, SDL_Renderer* r,int x, int y) {
 void deletePlayer(Player * p) {
     free(p->absX);
     free(p->absY);
+    free(p->playerId);
     SDL_DestroyTexture(p->plrImage);
 }
 
 void renderPlayer(Player * p) {
-    SDL_Rect plrRect = {*(p->absX),*(p->absY),TILE_WIDTH,TILE_HEIGHT};
-    SDL_RenderCopy(p->gameRenderer,p->plrImage,NULL,&plrRect);
+    SDL_Rect plrRect = {192,160,TILE_WIDTH,TILE_HEIGHT};
+    SDL_Rect plrRect2 = {TILE_SIZE*(*(p->absX)%MAP_WIDTH),TILE_SIZE*(*(p->absY)%MAP_HEIGHT),TILE_WIDTH,TILE_HEIGHT};
+    //SDL_Rect plrRect = {*(p->absX),*(p->absY),TILE_WIDTH,TILE_HEIGHT};
+    SDL_RenderCopy(p->gameRenderer,p->plrImage,NULL,&plrRect2);
+}
+
+void resetPlayer(Player* p) {
+    *(p->playerId) = -1;
+    *(p->absX) = -1;
+    *(p->absY) = -1;
 }
 
 void setPlayerCoordinates(Player * p, int x, int y) {

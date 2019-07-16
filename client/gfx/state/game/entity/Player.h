@@ -4,13 +4,15 @@
 typedef struct {
     int * absX;
     int * absY;
-    SDL_Texture* plrImage;
+    int * mapSection;
     SDL_Renderer* gameRenderer;
+    SDL_Texture* plrImage;
     char * playerName;
     int * playerId;
 } Player;
 Player * newPlayer();
-void initPlayer(Player* p, SDL_Renderer* r, int x, int y);
+void initPlayer(Player* p, SDL_Renderer* r);
+void resetPlayer(Player* p);
 void deletePlayer(Player* p);
 void renderPlayer(Player* p);
 void setPlayerCoordinates(Player * p, int x, int y);

@@ -4,9 +4,16 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include "net/communication/HandleReplies.h"
+#include <string.h>
+#include <unistd.h>
 
+int chode = 0;
 
 int main(int argc, char *argv[]) {
+
+    /*char buf[10];
+    sprintf(buf,"%d",getpid());
+    system("renice -n 20 -p 7314");*/
 
     int dontusethegui = 0;
     if (argc>1)

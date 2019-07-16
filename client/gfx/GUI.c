@@ -3,7 +3,6 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
 #include "SDL2_ttf/SDL_ttf.h"
-#include "state/LoginState.h"
 #include "../net/client.h"
 #include "text/KeyboardHandler.h"
 #include "text/KeyboardConstants.h"
@@ -25,6 +24,7 @@ void initGUI(GUI * me) {
     me->gameState = newGameState();
     me->currentState = malloc(sizeof(int));
     *(me->currentState)=0;
+    yourPlayer = newPlayer();
 }
 
 void deleteGUI(GUI * me) {
@@ -43,6 +43,8 @@ void loadGUIWindow(GUI * me) {
 
     SDL_Event e; //events from hardware/os
 
+    printf("datasec: %d\n",computeMapDataSection(250,250));
+
     //initialize SDL video
     if(SDL_Init(SDL_INIT_VIDEO) < 0 )
         printf("Error initializing SDL video: %s\n",SDL_GetError());
@@ -58,6 +60,8 @@ void loadGUIWindow(GUI * me) {
     Main_Window = SDL_CreateWindow("Multiplayer C Game : Client",SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 580, 0);
     Main_Renderer = SDL_CreateRenderer(Main_Window, -1, SDL_RENDERER_ACCELERATED);
 
+    initPlayer(yourPlayer,Main_Renderer);
+
 
     //load background image
     //Loading_Surf = IMG_Load("gfx/assets/background.png");
@@ -70,7 +74,7 @@ void loadGUIWindow(GUI * me) {
     //SDL_FreeSurface(Loading_Surf);
 
     //test font open
-    TTF_Font* Sans = TTF_OpenFont("gfx/assets/fonts/Arial.ttf",16);
+    TTF_Font* Sans = TTF_OpenFont("data/assets/fonts/Arial.ttf",16);
     if (Sans==NULL)
         printf("YOUR FONT WAS A NULL!!!!!!!\n");
 
@@ -86,14 +90,16 @@ void loadGUIWindow(GUI * me) {
 
     //initiailize fonts
     SDL_Color White = {255,255,255};
-    TTF_Font* Arial = TTF_OpenFont("gfx/assets/fonts/Arial.ttf",16);
+    TTF_Font* Arial = TTF_OpenFont("data/assets/fonts/Arial.ttf",16);
 
     //initialize login state
     //LoginState* loginState = newLoginState();
-    initLoginState(me->loginState,Main_Renderer,Arial);
+    initLoginState(me->loginState,Main_Renderer);
 
     //main rendering loop
     int textUpdateRequired = 0;
+    int tick = 0;
+    int numticks = 0;
     while (!quit) {
 
         //render the background
@@ -106,8 +112,15 @@ void loadGUIWindow(GUI * me) {
         //render login text
         if (*(me->currentState)==0)
             renderLoginState(me->loginState,Arial,White,textUpdateRequired);
-        else if (*(me->currentState)==1)
-            renderGameState(me->gameState);
+        else if (*(me->currentState)==1) {
+            if (((tick++) % 200000) == 0) {
+                renderGameState(me->gameState);
+                tick=0;
+                numticks++;
+                if (numticks%12000==0)
+                    printf("num ticks: %d\n",numticks);
+            }
+        }
         if (textUpdateRequired>0)
             textUpdateRequired = 0;
 
@@ -129,7 +142,7 @@ void loadGUIWindow(GUI * me) {
             if( e.type == SDL_QUIT ) {
                 printf("quit\n");
                 //SDL_DestroyTexture(BlueShapes);
-                SDL_DestroyTexture(Background_Tx);
+                //SDL_DestroyTexture(Background_Tx);
                 SDL_DestroyRenderer(Main_Renderer);
                 SDL_DestroyWindow(Main_Window);
                 Main_Window=NULL;
@@ -142,7 +155,7 @@ void loadGUIWindow(GUI * me) {
                 if (e.window.event==SDL_WINDOWEVENT_CLOSE) {
                     printf("closed\n");
                     //SDL_DestroyTexture(BlueShapes);
-                    SDL_DestroyTexture(Background_Tx);
+                    //SDL_DestroyTexture(Background_Tx);
                     SDL_DestroyRenderer(Main_Renderer);
                     SDL_DestroyWindow(Main_Window);
                     Main_Window=NULL;
@@ -161,6 +174,8 @@ void loadGUIWindow(GUI * me) {
                 printf("pos: (%d,%d)\n",e.button.x,e.button.y);
                 if (*(me->currentState)==0)
                     processClicks_Login(me->loginState,e.button.x,e.button.y);
+                else if (*(me->currentState)==1)
+                    processClicks_Game(me->gameState,e.button.x,e.button.y);
             }
             if (e.type == SDL_MOUSEBUTTONUP) {
                 //printf("mouse is up\n");
@@ -186,7 +201,7 @@ void loadGUIWindow(GUI * me) {
             }
 
         }
-        //SDL_Delay(500);
+        //SDL_Delay(50);
 
     }
 
