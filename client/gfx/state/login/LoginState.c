@@ -126,8 +126,8 @@ void renderLoginState(LoginState* state, TTF_Font* font, SDL_Color color, int te
         SDL_FreeSurface(passwordSurface);
         //textUpdateRequired=0;
     }
-    renderButton(state->buttons[0],state->stateRenderer);
-    renderButton(state->buttons[1],state->stateRenderer);
+    renderButton_old(state->buttons[0],state->stateRenderer);
+    renderButton_old(state->buttons[1],state->stateRenderer);
 
     SDL_RenderCopy(state->stateRenderer, state->usernameTexture, NULL, &usernameRect);
     SDL_RenderCopy(state->stateRenderer, state->passwordTexture, NULL, &passwordRect);

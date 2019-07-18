@@ -9,10 +9,12 @@ void initPlayer(Player* p, SDL_Renderer* r) {
     p->absY = malloc(sizeof(int));
     p->playerId = malloc(sizeof(int));
     p->mapSection = malloc(sizeof(int));
+    p->playerRights = malloc(sizeof(int));
     *(p->playerId) = -1;
     *(p->absX) = -1;
     *(p->absY) = -1;
     *(p->mapSection) = -1;
+    *(p->playerRights) = 0;
     p->gameRenderer = r;
     SDL_Surface* plrIconSurf= IMG_Load("data/assets/entity/player.png");
     p->plrImage = SDL_CreateTextureFromSurface(r,plrIconSurf);
@@ -23,6 +25,8 @@ void deletePlayer(Player * p) {
     free(p->absX);
     free(p->absY);
     free(p->playerId);
+    free(p->playerRights);
+    free(p->mapSection);
     SDL_DestroyTexture(p->plrImage);
 }
 

@@ -7,6 +7,7 @@
 #include "text/KeyboardHandler.h"
 #include "text/KeyboardConstants.h"
 
+
 int quit = 0;
 
 GUI * newGUI() {
@@ -25,6 +26,12 @@ void initGUI(GUI * me) {
     me->currentState = malloc(sizeof(int));
     *(me->currentState)=0;
     yourPlayer = newPlayer();
+
+    yourSettings = malloc(sizeof(GUISettings));
+    yourSettings->mapEditMode = malloc(sizeof(int));
+    *(yourSettings->mapEditMode) = 0;
+
+    //initializeFonts();
 }
 
 void deleteGUI(GUI * me) {
@@ -37,13 +44,8 @@ void deleteGUI(GUI * me) {
 
 void loadGUIWindow(GUI * me) {
     SDL_Window* Main_Window; //window for the GUI to load in
-    SDL_Renderer* Main_Renderer; //canvas; add surfaces using SDL_RenderCopy
-    SDL_Surface* Loading_Surf; //load images into this surface, then add to main renderer
-    SDL_Texture* Background_Tx; //main background
 
     SDL_Event e; //events from hardware/os
-
-    printf("datasec: %d\n",computeMapDataSection(250,250));
 
     //initialize SDL video
     if(SDL_Init(SDL_INIT_VIDEO) < 0 )
@@ -57,36 +59,15 @@ void loadGUIWindow(GUI * me) {
         printf("Error initializing SDL2_ttf\n");
 
     //initialize main window and renderer
-    Main_Window = SDL_CreateWindow("Multiplayer C Game : Client",SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 580, 0);
+    Main_Window = SDL_CreateWindow("Multiplayer C Game : Client",SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, GUI_WINDOW_WIDTH, GUI_WINDOW_HEIGHT, 0);
     Main_Renderer = SDL_CreateRenderer(Main_Window, -1, SDL_RENDERER_ACCELERATED);
 
     initPlayer(yourPlayer,Main_Renderer);
-
-
-    //load background image
-    //Loading_Surf = IMG_Load("gfx/assets/background.png");
-    //Background_Tx = SDL_CreateTextureFromSurface(Main_Renderer, Loading_Surf);
-    //SDL_FreeSurface(Loading_Surf);
-
-    /* Load an additional texture */
-    //Loading_Surf = SDL_LoadBMP("gfx/assets/Guy.bmp");
-    //BlueShapes = SDL_CreateTextureFromSurface(Main_Renderer, Loading_Surf);
-    //SDL_FreeSurface(Loading_Surf);
 
     //test font open
     TTF_Font* Sans = TTF_OpenFont("data/assets/fonts/Arial.ttf",16);
     if (Sans==NULL)
         printf("YOUR FONT WAS A NULL!!!!!!!\n");
-
-    // data for text fields upon login
-    /*TextInput* loginField = newTextInputField();
-    initTextInputField(loginField,50);
-    SDL_Color White = {255,255,255};
-    SDL_Surface* loginTextSurface = TTF_RenderText_Solid(Sans,loginField->build,White);
-    SDL_Texture* loginText = SDL_CreateTextureFromSurface(Main_Renderer,loginTextSurface);
-    SDL_FreeSurface(loginTextSurface);
-    SDL_Rect loginText_rect = {190,250,69,420}; //width and height can be init'd to whatever in this case
-    */
 
     //initiailize fonts
     SDL_Color White = {255,255,255};
@@ -124,44 +105,26 @@ void loadGUIWindow(GUI * me) {
         if (textUpdateRequired>0)
             textUpdateRequired = 0;
 
-        /*if (textUpdateRequired) {
-            loginTextSurface = TTF_RenderText_Solid(Sans,loginField->build,White);
-            loginText = SDL_CreateTextureFromSurface(Main_Renderer,loginTextSurface);
-            TTF_SizeText(Sans,loginField->build,&loginText_rect.w,&loginText_rect.h);
-            SDL_FreeSurface(loginTextSurface);
-            textUpdateRequired=0;
-        }
-        SDL_RenderCopy(Main_Renderer, loginText, NULL, &loginText_rect);*/
-
-        //render everything in the main renderer
         SDL_RenderPresent(Main_Renderer);
-        SDL_PumpEvents(); //this fuckin line is important bruh
+        SDL_PumpEvents();
 
         while( SDL_PollEvent( &e ) != 0 ) {
-            SDL_PumpEvents(); //this fuckin line is important bruh
+            SDL_PumpEvents();
             if( e.type == SDL_QUIT ) {
                 printf("quit\n");
-                //SDL_DestroyTexture(BlueShapes);
-                //SDL_DestroyTexture(Background_Tx);
                 SDL_DestroyRenderer(Main_Renderer);
                 SDL_DestroyWindow(Main_Window);
                 Main_Window=NULL;
                 Main_Renderer=NULL;
-                Background_Tx=NULL;
-                //BlueShapes=NULL;
                 quit=1;
             }
             if (e.type == SDL_WINDOWEVENT) {
                 if (e.window.event==SDL_WINDOWEVENT_CLOSE) {
                     printf("closed\n");
-                    //SDL_DestroyTexture(BlueShapes);
-                    //SDL_DestroyTexture(Background_Tx);
                     SDL_DestroyRenderer(Main_Renderer);
                     SDL_DestroyWindow(Main_Window);
                     Main_Window=NULL;
                     Main_Renderer=NULL;
-                    Background_Tx=NULL;
-                    //BlueShapes=NULL;
                     quit=1;
                 }
             }

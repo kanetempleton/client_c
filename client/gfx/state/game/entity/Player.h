@@ -9,6 +9,7 @@ typedef struct {
     SDL_Texture* plrImage;
     char * playerName;
     int * playerId;
+    int * playerRights;
 } Player;
 Player * newPlayer();
 void initPlayer(Player* p, SDL_Renderer* r);

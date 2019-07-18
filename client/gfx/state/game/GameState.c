@@ -12,10 +12,15 @@ void initGameState(GameState* gs, SDL_Renderer* rend) {
     SDL_Surface* gameFrameSurf = IMG_Load("data/assets/gameframe.png");
     gs->gameFrameTexture = SDL_CreateTextureFromSurface(gs->stateRenderer,gameFrameSurf);
     SDL_FreeSurface(gameFrameSurf);
-    gs->buttons[0] = newButton();
-    initButton(gs->buttons[0],2,575,5);
+    //gs->buttons[0] = newButton();
+    //initButton(gs->buttons[0],2,575,5);
     gs->gameMap = newMap();
     initMap(gs->gameMap,rend);
+    gs->gameHUD = newHUD();
+    initHUD(gs->gameHUD,rend);
+
+    gameCPanel = newControlPanel();
+    initControlPanel(gameCPanel,rend);
     //sendPlayerInfoRequest();
 }
 
@@ -24,18 +29,15 @@ void deleteGameState(GameState* gs) {
 }
 
 void renderGameState(GameState* gs) {
-    //SDL_Surface* Loading_Surf = IMG_Load("gfx/assets/background.png"); //TODO: init the background in init method so we dont have to do it over and over again
-    //SDL_Texture* Background_Tx = SDL_CreateTextureFromSurface(state->stateRenderer, Loading_Surf);
-    //SDL_FreeSurface(Loading_Surf);
     if (gs==NULL)
         return;
     if (gs->stateRenderer==NULL || gs->gameFrameTexture==NULL)
         return;
     SDL_RenderCopy(gs->stateRenderer,gs->gameFrameTexture,NULL,NULL);
-    renderButton(gs->buttons[0],gs->stateRenderer);
-    //SDL_DestroyTexture(Background_Tx);
     renderMap(gs->gameMap,yourPlayer);
-    //renderPlayer(yourPlayer);
+    renderHUD(gs->gameHUD,gs->stateRenderer);
+    renderControlPanel(gameCPanel,gs->stateRenderer);
+    //renderButton(gs->buttons[0],gs->stateRenderer);
 }
 
 void processKeys_Game(GameState* gs, int keysym) {
@@ -77,7 +79,9 @@ void processKeys_Game(GameState* gs, int keysym) {
 }
 
 void processClicks_Game(GameState* gs, int clickX, int clickY) {
-    for (int i=0; i<NUM_GAME_BUTTONS; i++) {
+
+    processClicks_HUD(gs->gameHUD,clickX,clickY);
+    /*for (int i=0; i<NUM_GAME_BUTTONS; i++) {
         int lowx = *(gs->buttons[i]->absX);
         int highx = lowx+*(gs->buttons[i])->width;
         int lowy = *(gs->buttons[i]->absY);
@@ -94,5 +98,5 @@ void processClicks_Game(GameState* gs, int clickX, int clickY) {
 
             }
         }
-    }
+    }*/
 }

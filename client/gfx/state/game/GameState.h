@@ -5,13 +5,18 @@
 #include "entity/Player.h"
 #include "../../component/button.h"
 #include "map/Map.h"
+#include "hud/HUD.h"
+#include "cpanel/CPanel.h"
+
 #define NUM_GAME_BUTTONS 1
 typedef struct {
     SDL_Renderer* stateRenderer;
     SDL_Texture* gameFrameTexture;
     Button* buttons[NUM_GAME_BUTTONS];
     Map * gameMap;
+    GameHUD* gameHUD;
 } GameState;
+ControlPanel* gameCPanel;
 GameState* newGameState();
 void initGameState(GameState* s, SDL_Renderer* r);
 void updateCoordinates(GameState* s, int x, int y);
