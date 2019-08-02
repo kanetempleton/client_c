@@ -10,4 +10,5 @@ void initTextInputField(TextInput* field, int size);
 void deleteTextInputField(TextInput* field);
 int addKey(TextInput* field, int keyid);
 void delKey(TextInput* field, int numKeys);
+void clearTextField(TextInput* field);
 #endif

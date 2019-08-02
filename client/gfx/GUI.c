@@ -7,7 +7,6 @@
 #include "text/KeyboardHandler.h"
 #include "text/KeyboardConstants.h"
 
-
 int quit = 0;
 
 GUI * newGUI() {
@@ -16,6 +15,7 @@ GUI * newGUI() {
 
 void initGUI(GUI * me) {
     printf("initgui\n");
+    pthread_mutex_init(&guiLock,NULL);
     me->updateString=malloc(sizeof(char)*257);
     for (int i=0; i<256; i++) {
         *(me->updateString+i)='*';
@@ -30,7 +30,16 @@ void initGUI(GUI * me) {
     yourSettings = malloc(sizeof(GUISettings));
     yourSettings->mapEditMode = malloc(sizeof(int));
     *(yourSettings->mapEditMode) = 0;
+    yourSettings->cursorID = malloc(sizeof(int));
+    *(yourSettings->cursorID) = -1;
+    yourSettings->mapSend = malloc(sizeof(int));
+    *(yourSettings->mapSend) = 0;
+    yourSettings->tempMapString = malloc(MAP_WIDTH*MAP_HEIGHT*3+1);
+    yourSettings->holdingMouse = malloc(sizeof(int));
+    *(yourSettings->holdingMouse) = 0;
 
+    //guiSprites = newSpriteCache();
+    //initializeSpriteCache(guiSprites);
     //initializeFonts();
 }
 
@@ -38,7 +47,7 @@ void deleteGUI(GUI * me) {
     free(me->updateString);
     deleteLoginState(me->loginState);
     free(me->loginState);
-    free(me);
+    //free(me);
 }
 
 
@@ -63,6 +72,7 @@ void loadGUIWindow(GUI * me) {
     Main_Renderer = SDL_CreateRenderer(Main_Window, -1, SDL_RENDERER_ACCELERATED);
 
     initPlayer(yourPlayer,Main_Renderer);
+    initializeSpriteCache(yourPlayer->guiSprites,Main_Renderer);
 
     //test font open
     TTF_Font* Sans = TTF_OpenFont("data/assets/fonts/Arial.ttf",16);
@@ -91,6 +101,7 @@ void loadGUIWindow(GUI * me) {
         //SDL_RenderCopy(Main_Renderer, BlueShapes, &SrcR, &DestR);
 
         //render login text
+        //pthread_mutex_lock(&guiLock);
         if (*(me->currentState)==0)
             renderLoginState(me->loginState,Arial,White,textUpdateRequired);
         else if (*(me->currentState)==1) {
@@ -107,9 +118,10 @@ void loadGUIWindow(GUI * me) {
 
         SDL_RenderPresent(Main_Renderer);
         SDL_PumpEvents();
+        //pthread_mutex_unlock(&guiLock);
 
         while( SDL_PollEvent( &e ) != 0 ) {
-            SDL_PumpEvents();
+            //SDL_PumpEvents();
             if( e.type == SDL_QUIT ) {
                 printf("quit\n");
                 SDL_DestroyRenderer(Main_Renderer);
@@ -129,18 +141,23 @@ void loadGUIWindow(GUI * me) {
                 }
             }
             if (e.type == SDL_MOUSEMOTION) {
+                //printf("mouse motion\n");
                 //printf("mouse is moving\n");
                 //printf("pos: (%d,%d)\n",e.motion.x,e.motion.y);
+                if (*(me->currentState)==1)
+                    processMouseMotion_Game(me->gameState,e.button.x,e.button.y);
             }
             if (e.type == SDL_MOUSEBUTTONDOWN) {
                 printf("mouse clicked\t");
                 printf("pos: (%d,%d)\n",e.button.x,e.button.y);
+                *(yourSettings->holdingMouse)=1;
                 if (*(me->currentState)==0)
                     processClicks_Login(me->loginState,e.button.x,e.button.y);
                 else if (*(me->currentState)==1)
                     processClicks_Game(me->gameState,e.button.x,e.button.y);
             }
             if (e.type == SDL_MOUSEBUTTONUP) {
+                *(yourSettings->holdingMouse)=0;
                 //printf("mouse is up\n");
                 //printf("pos: (%d,%d)\n",e.button.x,e.button.y);
             }
@@ -149,7 +166,7 @@ void loadGUIWindow(GUI * me) {
                 //printf("pos: (%d,%d)\n",e.wheel.x,e.wheel.y);
             }
             if (e.type == SDL_KEYDOWN) {
-                //printf("key down\n");
+            //    printf("key down\n");
                 //printf("key: (%d)\n",e.key.keysym.scancode);
                 //addKey(loginState->usernameText,e.key.keysym.sym);
                 if (*(me->currentState)==0)
@@ -162,9 +179,8 @@ void loadGUIWindow(GUI * me) {
                 //printf("key up\n");
                 //printf("key: (%d)\n",e.key.keysym.scancode);
             }
-
         }
-        //SDL_Delay(50);
+        SDL_Delay(5);
 
     }
 

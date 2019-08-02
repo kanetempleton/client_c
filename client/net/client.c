@@ -21,9 +21,11 @@ somewhere online but i can't find the website i originally got it from
 
 #define MAXDATASIZE 1024 /* max number of bytes we can get at once */
 
+
 static int shutDown;
 char* sendText;
 static int sendReady;
+int sockfd;
 
 Client * newClient() {
     return (Client *) malloc(sizeof(Client));
@@ -31,11 +33,14 @@ Client * newClient() {
 
 void initClient(Client * me, ReplyHandler* rh, int assign) {
     printf("initClient\n");
+    pthread_mutex_init(&clientLock,NULL);
     me->id=malloc(sizeof(int));
     *(me->id) = assign;
     sendText = malloc(sizeof(char)*1024);
     sendReady=0;
     me->replyHandler = rh;
+    //sockfd = malloc(sizeof(int));
+    sockfd = 0;
 }
 
 void shutDownClient() {
@@ -48,7 +53,7 @@ void * startClient(void * arg) {
     shutDown = 0;
     printf("startClient called\n");
     //Client * me = (Client *) arg;
-    int sockfd, numbytes;
+    int numbytes;
     char sendbuf[MAXDATASIZE];
     char recvbuf[MAXDATASIZE];
     int curBufSize=0;
@@ -73,7 +78,7 @@ void * startClient(void * arg) {
 
     if (connect(sockfd, (struct sockaddr *)&their_addr, sizeof(struct sockaddr)) == -1) {
         printf("error connecting to server - possibly offline\n"); //i had to add this message cuz i kept trying to test my client while the server wasn't running and getting really frustrated with this error
-        perror("connect");
+        //perror("connect");
         exit(1);
     }
         /* sleep(5); */
@@ -102,6 +107,7 @@ void * startClient(void * arg) {
             }
             sendReady=0;
             memset(sendbuf, 0, sizeof(sendbuf));
+            pthread_mutex_unlock(&clientLock);
             //printf("sendtext: %s",sendText);
             //printf("sendbuf: %s",sendbuf);
             //free(sendThis);
@@ -129,6 +135,7 @@ void * startClient(void * arg) {
 
 void sendMessage(char* send) {
     //memset(sendText,0,sizeof(sendText));
+    pthread_mutex_lock(&clientLock);
     strcpy(sendText,send);
     //sendText = send;
     sendReady = 1;

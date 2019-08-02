@@ -9,6 +9,9 @@ cd login
 gcc -c *.c
 cd ..
 cd game
+cd infobox
+gcc -c *.c
+cd ..
 cd cpanel
 cd cstate
 gcc -c *.c
@@ -51,4 +54,4 @@ gcc -c *.c
 
 #dont forget to add new directories to this line to link them
 #also add any new libraries here or gf your whole program
-gcc -o main *.c gfx/*.c gfx/text/*.c gfx/state/game/*.c gfx/state/game/cpanel/*.c gfx/state/game/cpanel/cstate/*.c gfx/state/game/map/*.c gfx/state/game/hud/*.c gfx/state/game/hud/menus/*.c gfx/state/game/entity/*.c gfx/state/login/*.c gfx/component/*.c net/*.c net/communication/*.c util/*.c -lSDL2 -lSDL2_ttf -lSDL2_image
+gcc -o main *.c gfx/*.c gfx/state/game/infobox/*.c gfx/text/*.c gfx/state/game/*.c gfx/state/game/cpanel/*.c gfx/state/game/cpanel/cstate/*.c gfx/state/game/map/*.c gfx/state/game/hud/*.c gfx/state/game/hud/menus/*.c gfx/state/game/entity/*.c gfx/state/login/*.c gfx/component/*.c net/*.c net/communication/*.c util/*.c -lSDL2 -lSDL2_ttf -lSDL2_image

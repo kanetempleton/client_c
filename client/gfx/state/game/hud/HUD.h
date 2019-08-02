@@ -27,7 +27,6 @@
 typedef struct {
     int * activeMenu;
     SDL_Texture* menuIcon[NUMBER_OF_MENUS];
-    SDL_Texture* menuIcon2[NUMBER_OF_MENUS];
     SDL_Texture* selectIcon;
     SDL_Texture* frameImage;
     HUDMenu* hudMenu[NUMBER_OF_MENUS];

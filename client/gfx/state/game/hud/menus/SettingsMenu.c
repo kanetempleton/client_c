@@ -46,14 +46,15 @@ void processClicks_Settings(HUDMenu* men, int clickX, int clickY) {
 void processButtons_Settings(HUDMenu* men, int id) {
     switch (id) {
         case 0: //map editor
-            if (*(men->menuData[SETTINGS_MAP_EDIT])) {
-                printf("data was %d\n",*(men->menuData[SETTINGS_MAP_EDIT]));
-                *(men->menuData[SETTINGS_MAP_EDIT]) = 0;
+            if (*(yourSettings->mapEditMode)) {
+            //    printf("data was %d\n",*(men->menuData[SETTINGS_MAP_EDIT]));
+                //*(men->menuData[SETTINGS_MAP_EDIT]) = 0;
                 *(yourSettings->mapEditMode) = 0;
                 printf("map editing disabled\n");
+                resetControlPanelState(gameCPanel);
             }
             else {
-                *(men->menuData[SETTINGS_MAP_EDIT]) = 1;
+                //*(men->menuData[SETTINGS_MAP_EDIT]) = 1;
                 printf("map editing enabled\n");
                 *(yourSettings->mapEditMode) = 1;
                 setControlPanelState(gameCPanel,CPANEL_STATE_MAPEDIT);

@@ -4,6 +4,8 @@
 
 #define BUTTON_SETTINGS_INDEX 50
 
+#define BUTTON_INFOBOX_INDEX 70
+
 typedef struct {
     int * buttonID;
     int * absX;

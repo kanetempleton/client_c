@@ -2,5 +2,11 @@
 #define H_MAPEDITOR
 #include "SDL2/SDL.h"
 #include "../CPanel.h"
-void renderMapEditor(ControlPanel* pan, SDL_Renderer* r);
+
+#define MAPEDITOR_NUM_BUTTONS 3
+
+void renderMapEditor(ControlPanel* pan, TTF_Font* font, SDL_Renderer* r);
+void displayInputTileField(ControlPanel* pan);
+void processCpanelClick_MapEditor(ControlPanel* pan, int button);
+void searchTile(ControlPanel* pan);
 #endif

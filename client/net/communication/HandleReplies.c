@@ -2,6 +2,8 @@
 #include "Codes.h"
 #include "SendMessage.h"
 #include <string.h>
+#include "../../gfx/state/game/infobox/InfoBox.h"
+#include <pthread.h>
 
 ReplyHandler* newReplyHandler() {
     return (ReplyHandler*)malloc(sizeof(ReplyHandler));
@@ -15,8 +17,11 @@ void deleteReplyHandler(ReplyHandler* rh) {
     deleteGUI(rh->gui);
     free(rh);
 }
-
+int globalI = 0;
 void handleReply(ReplyHandler* rh, char* repl) {
+    printf("handling reply?\n");
+    //pthread_mutex_lock(&guiLock);
+    //pthread_mutex_lock(&clientLock);
     if (strcmp(repl,"successlogin")==0) {
         //enter the game
         initGameState(rh->gui->gameState,rh->gui->loginState->stateRenderer);
@@ -53,8 +58,13 @@ void handleReply(ReplyHandler* rh, char* repl) {
         int hideID = -1;
         int hidePlayer = 0;
         int showPlayerID = -1;
+        int throwInfoboxMsg = 0;
+        int publicChatSend = 0;
+        int publicChatRecv = 0;
         int x=250;
         int y=250;
+        char* publicChatFrom;
+        char* publicChatMsg;
         while( token != NULL ) {
             if (strcmp(token,HALT)==0) {
                 t=0;
@@ -73,6 +83,13 @@ void handleReply(ReplyHandler* rh, char* repl) {
                     getID = 1;
                 }
                 else if (strcmp(token,SEND_PLAYER_COORDS)==0) {
+                    char buf[50];
+                    char titties[3];
+                    strcpy(buf,"Updating coordinates.");
+                    sprintf(titties,"%d",(globalI++)%100);
+                    strcat(buf,titties);
+                    printf("adding %s\n",buf);
+                    addEntryToInfoBox(gameInfoBox,"->",buf);
                     updatePos = 1;
                 }
                 else if (strcmp(token,LOGOUT_PLAYER)==0) {
@@ -87,29 +104,22 @@ void handleReply(ReplyHandler* rh, char* repl) {
                 else if (strcmp(token,HIDE_PLAYER)==0) {
                     hidePlayer = 1;
                 }
-                /*else if (strcmp(token,"successlogin")==0) {
-                    initGameState(rh->gui->gameState,rh->gui->loginState->stateRenderer);
-                    deleteLoginState(rh->gui->loginState);
-                    *(rh->gui->currentState) = 1;
-                    printf("enter the game!!!!!\n");
+                else if (strcmp(token,SEND_INFOBOX_MSG)==0) {
+                    throwInfoboxMsg = 1;
                 }
-                else if (strcmp(token,"createnewprofile")==0) {
-                    printf("MAKE A NEW PROFILE!!!!!\n");
-                    initGameState(rh->gui->gameState,rh->gui->loginState->stateRenderer);
-                    deleteLoginState(rh->gui->loginState);
-                    *(rh->gui->currentState) = 1;
+                else if (strcmp(token,PUBLIC_CHAT_FROM)==0) {
+                    publicChatRecv = 1;
                 }
-                else {
-                    printf("unsupported command in packet\n");
-                }*/
             }
-            if (t==1) {
+            if (t==1) { //2nd word in packet
                 if (getInfo || updatePos) {
                     x=strtol(token,NULL,10);
                 }
                 if (getID) {
                     int id = strtol(token,NULL,10);
                     *(yourPlayer->playerId) = id;
+                    //pthread_mutex_unlock(&guiLock);
+                    pthread_mutex_unlock(&clientLock);
                     messageToServer(PLAYER_INFO_REQUEST);
                 }
                 else if (getMap) {
@@ -122,8 +132,28 @@ void handleReply(ReplyHandler* rh, char* repl) {
                 else if (hidePlayer) {
                     hideID = strtol(token,NULL,10);
                 }
+                else if (throwInfoboxMsg) {
+                    char* txtsend = malloc(256);
+                    strcpy(txtsend,token);
+                    token = strtok(NULL, SPLIT);
+                    strcat(txtsend," ");
+                    while (token!=NULL) {
+                        strcat(txtsend,token);
+                        strcat(txtsend," ");
+                        //addEntryToInfoBox(gameInfoBox,"->",token);
+                        token = strtok(NULL, SPLIT);
+                    }
+                    printf("created %s\n",txtsend);
+                    pthread_mutex_unlock(&clientLock);
+                    addEntryToInfoBox(gameInfoBox,"->",txtsend);
+                    break;
+                }
+                else if (publicChatRecv) {
+                    publicChatFrom = malloc(strlen(token)+1);
+                    strcpy(publicChatFrom,token);
+                }
             }
-            if (t==2) {
+            if (t==2) { //3rd word
                 if (getInfo) {
                     y=strtol(token,NULL,10);
                     printf("setting player coords1\n");
@@ -133,6 +163,7 @@ void handleReply(ReplyHandler* rh, char* repl) {
                     initGameState(rh->gui->gameState,rh->gui->loginState->stateRenderer);
                     deleteLoginState(rh->gui->loginState);
                     *(rh->gui->currentState) = 1;
+                    pthread_mutex_unlock(&clientLock);
                     sendInitialMapRequest();
                 }
                 else if (updatePos) {
@@ -142,6 +173,7 @@ void handleReply(ReplyHandler* rh, char* repl) {
                     if (x%MAP_WIDTH==0||x%MAP_WIDTH==(MAP_WIDTH-1)||
                         y%MAP_HEIGHT==0||y%MAP_HEIGHT==(MAP_HEIGHT-1)) {
                         int sec = computeMapDataSection(x,y);
+                        pthread_mutex_unlock(&clientLock);
                         if (sec!=*(yourPlayer->mapSection)) {
                             *(yourPlayer->mapSection) = sec;
                             clearRenderMapData(rh->gui->gameState->gameMap);
@@ -151,6 +183,7 @@ void handleReply(ReplyHandler* rh, char* repl) {
                     }
                 }
                 else if (getMap==5) {
+                    pthread_mutex_unlock(&clientLock);
                     updateMapString(rh->gui->gameState->gameMap,token);
                     /*for (int i=0; i<12; i++) {
                         *(rh->gui->gameState->gameMap->mapstring+i) = token[i];
@@ -163,30 +196,61 @@ void handleReply(ReplyHandler* rh, char* repl) {
                 else if (hidePlayer) {
                     showX = strtol(token,NULL,10);
                 }
+                else if (publicChatRecv) {
+                    //publicChatMsg = malloc(strlen(token)+1);
+                    //char* msgp = malloc(51);
+                    /*strcpy(msgp,token);
+                    while (token!=NULL) {
+                        strcat(msgp,token);
+                        token = strtok(NULL, SPLIT);
+                    }*/
+                    printf("gonna add chat entry: %s,%s\n",publicChatFrom,token);
+                    addEntryToInfoBox(gameInfoBox, publicChatFrom, token);
+                    free(publicChatFrom);
+                    pthread_mutex_unlock(&clientLock);
+                    break;
+                }
             }
-            if (t==3) {
+            if (t==3) { //4th word
                 if (showPlr) {
                     showY = strtol(token,NULL,10);
                 }
                 else if (hidePlayer) {
                     showY = strtol(token,NULL,10);
+                    pthread_mutex_unlock(&clientLock);
                     *(rh->gui->gameState->gameMap->rendPlayers[showX%MAP_WIDTH][showY%MAP_HEIGHT])=-1;
                 }
+                /*else if (publicChatRecv) {
+                    addEntryToInfoBox(gameInfoBox, publicChatFrom, token);
+                    free(publicChatFrom);
+                }*/
             }
-            if (t==4) {
+            if (t==4) { //5th word
                 if (showPlr) {
                     oldX = strtol(token,NULL,10);
                 }
             }
-            if (t==5) {
+            if (t==5) { //6th word
                 if (showPlr) {
                     oldY = strtol(token,NULL,10);
+                    pthread_mutex_unlock(&clientLock);
                     if (showPlayerID!=*(yourPlayer->playerId)) {
                         if ((showX/MAP_WIDTH)==((*(yourPlayer->absX))/MAP_WIDTH) &&
                             (showY/MAP_HEIGHT)==((*(yourPlayer->absY))/MAP_HEIGHT)) {
                                 printf("player is in your box[%d,%d]\n",showX%MAP_WIDTH,showY%MAP_HEIGHT);
-                                *(rh->gui->gameState->gameMap->rendPlayers[oldX%MAP_WIDTH][oldY%MAP_HEIGHT])=-1;
+                                if (oldX>=0&&oldY>=0) {
+                                    printf("chode\n");
+                                    *(rh->gui->gameState->gameMap->rendPlayers[oldX%MAP_WIDTH][oldY%MAP_HEIGHT])=-1;
+                                    printf("cocks\n");
+                                }
+                                printf("uhhhh...???");
+                                for (int i=0; i<MAP_WIDTH; i++)  {
+                                    for (int j=0; j<MAP_HEIGHT; j++) {
+                                        printf("map %d %d player = %d\n",i,j,*(rh->gui->gameState->gameMap->rendPlayers[i][j]));
+                                    }
+                                }
                                 *(rh->gui->gameState->gameMap->rendPlayers[showX%MAP_WIDTH][showY%MAP_HEIGHT])=1;
+                                printf("yowhat t hefuck\n");
                             }
                     }
                 }
@@ -194,6 +258,9 @@ void handleReply(ReplyHandler* rh, char* repl) {
             token = strtok(NULL, SPLIT);
             t++;
         }
+        printf("unlocking gui...\n");
+        pthread_mutex_unlock(&clientLock);
+        pthread_mutex_unlock(&guiLock);
     }
 
 }

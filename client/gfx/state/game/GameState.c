@@ -8,6 +8,7 @@ GameState* newGameState() {
 }
 
 void initGameState(GameState* gs, SDL_Renderer* rend) {
+    pthread_mutex_lock(&clientLock);
     gs->stateRenderer = rend;
     SDL_Surface* gameFrameSurf = IMG_Load("data/assets/gameframe.png");
     gs->gameFrameTexture = SDL_CreateTextureFromSurface(gs->stateRenderer,gameFrameSurf);
@@ -19,8 +20,16 @@ void initGameState(GameState* gs, SDL_Renderer* rend) {
     gs->gameHUD = newHUD();
     initHUD(gs->gameHUD,rend);
 
+    gs->cursorX = malloc(sizeof(int));
+    gs->cursorY = malloc(sizeof(int));
+    *(gs->cursorX) = 0;
+    *(gs->cursorY) = 0;
+
     gameCPanel = newControlPanel();
     initControlPanel(gameCPanel,rend);
+    gameInfoBox = newInfoBox();
+    initInfoBox(gameInfoBox);
+    pthread_mutex_unlock(&clientLock);
     //sendPlayerInfoRequest();
 }
 
@@ -37,6 +46,12 @@ void renderGameState(GameState* gs) {
     renderMap(gs->gameMap,yourPlayer);
     renderHUD(gs->gameHUD,gs->stateRenderer);
     renderControlPanel(gameCPanel,gs->stateRenderer);
+    renderInfoBox(gameInfoBox,gs->stateRenderer);
+
+    SDL_Rect cursorRect = {*(gs->cursorX)-(TILE_SIZE/2),*(gs->cursorY)-(TILE_SIZE/2),TILE_SIZE,TILE_SIZE};
+    if (*(yourSettings->cursorID) >=0) {
+        SDL_RenderCopy(gs->stateRenderer,yourPlayer->guiSprites->gameCursor,NULL,&cursorRect);
+    }
     //renderButton(gs->buttons[0],gs->stateRenderer);
 }
 
@@ -61,6 +76,11 @@ void processKeys_Game(GameState* gs, int keysym) {
             sendUpdatePlayerCoordinatesRequest(*(yourPlayer->absX)+1,*(yourPlayer->absY));
             break;
     }
+    if (*(yourSettings->mapEditMode)) {
+        processKeys_CPanel(gameCPanel,keysym);
+    } else {
+        processKeys_infoBox(gameInfoBox,keysym);
+    }
     /*if (*(state->activeField)==0) {
         if (addKey(state->usernameText,keysym) == 2) {
             *(state->activeField)=1;
@@ -81,6 +101,16 @@ void processKeys_Game(GameState* gs, int keysym) {
 void processClicks_Game(GameState* gs, int clickX, int clickY) {
 
     processClicks_HUD(gs->gameHUD,clickX,clickY);
+    processClicks_CPanel(gameCPanel,clickX,clickY);
+    processClicks_infoBox(gameInfoBox,clickX,clickY);
+    if (clickX<(TILE_SIZE*MAP_WIDTH) && clickY<(TILE_SIZE*MAP_HEIGHT)) {
+        if (*(yourSettings->cursorID) > -1) {
+            int scrX = clickX/TILE_SIZE;
+            int scrY = clickY/TILE_SIZE;
+            setTile(gs->gameMap,scrX,scrY,gameCPanel->consoleInput->build);
+            *(yourSettings->mapSend)=1;
+        }
+    }
     /*for (int i=0; i<NUM_GAME_BUTTONS; i++) {
         int lowx = *(gs->buttons[i]->absX);
         int highx = lowx+*(gs->buttons[i])->width;
@@ -99,4 +129,38 @@ void processClicks_Game(GameState* gs, int clickX, int clickY) {
             }
         }
     }*/
+}
+
+void processMouseMotion_Game(GameState* gs, int x, int y) {
+    SDL_Rect cursorRect = {x,y,32,32};
+    if (*(yourSettings->cursorID) >=0) {
+        if (yourPlayer->guiSprites->gameCursor!=NULL) {
+            *(gs->cursorX) = x;
+            *(gs->cursorY) = y;
+            if (*(yourSettings->holdingMouse)) {
+                int scrX = x/TILE_SIZE;
+                int scrY = y/TILE_SIZE;
+                setTile(gs->gameMap,scrX,scrY,gameCPanel->consoleInput->build);
+            }
+            //SDL_RenderCopy(gs->stateRenderer,yourPlayer->guiSprites->gameCursor,NULL,&cursorRect);
+        }
+    }
+}
+
+void setCursor(int id) {
+    printf("setting the cursor\n");
+
+    char buf[6];
+    sprintf(buf,"%d",id);
+    char* filepath = malloc(strlen("data/assets/map/.png")+TILE_DATA_SIZE+strlen(buf)+8);
+    strcpy(filepath,"data/assets/map/");
+    strcat(filepath,buf);
+    strcat(filepath,".png");
+
+    SDL_Surface* cursorSurface = IMG_Load(filepath);
+    yourPlayer->guiSprites->gameCursor = SDL_CreateTextureFromSurface(yourPlayer->guiSprites->renderer,cursorSurface);
+    SDL_FreeSurface(cursorSurface);
+    *(yourSettings->cursorID) = id;
+
+    free(filepath);
 }

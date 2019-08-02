@@ -20,7 +20,6 @@ void deleteTextInputField(TextInput* field) {
     free(field->maxLength);
     free(field->end);
     free(field->build);
-    free(field);
 }
 
 int addKey(TextInput* field, int keyid) {
@@ -61,4 +60,11 @@ void delKey(TextInput* field, int numKeys) {
     *(field->build+*(field->end)) = ' ';
     *(field->end)=*(field->end)-1;
     *(field->build+*(field->end)) = '\0';
+}
+
+
+void clearTextField(TextInput* field) {
+    while (*(field->end)!=0) {
+        delKey(field,1);
+    }
 }

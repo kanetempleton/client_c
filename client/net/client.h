@@ -2,10 +2,12 @@
 #define H_CLIENT
 #include "../gfx/GUI.h"
 #include "communication/HandleReplies.h"
+#include <pthread.h>
 typedef struct {
     int * id;
     ReplyHandler* replyHandler;
 } Client;
+pthread_mutex_t clientLock;
 Client * newClient();
 void initClient(Client * me, ReplyHandler* rh, int assign);
 void * startClient(void * arg); //for multithreading

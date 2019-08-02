@@ -35,4 +35,8 @@ void updateMapUp(Map* m, char* newData);
 void updateMapDown(Map* m, char* newData);
 int computeMapDataSection(int x, int y);
 void clearRenderMapData(Map* m);
+
+void setTile(Map* m, int x, int y, char* t);
+
+void getBase36(char* fill, int num);
 #endif

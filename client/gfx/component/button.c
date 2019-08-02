@@ -54,7 +54,7 @@ char* getImagePath(Button* b) {
         case 2:
             return "data/assets/buttons/logout.png";
         default:
-            return "data/assets/buttons/exit.png";
+            return "data/assets/buttons/enter.png";
     }
 }
 

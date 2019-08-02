@@ -5,6 +5,7 @@ Player* newPlayer() {
 }
 
 void initPlayer(Player* p, SDL_Renderer* r) {
+    p->playerName = malloc(13);
     p->absX = malloc(sizeof(int));
     p->absY = malloc(sizeof(int));
     p->playerId = malloc(sizeof(int));
@@ -19,6 +20,7 @@ void initPlayer(Player* p, SDL_Renderer* r) {
     SDL_Surface* plrIconSurf= IMG_Load("data/assets/entity/player.png");
     p->plrImage = SDL_CreateTextureFromSurface(r,plrIconSurf);
     SDL_FreeSurface(plrIconSurf);
+    p->guiSprites = newSpriteCache();
 }
 
 void deletePlayer(Player * p) {

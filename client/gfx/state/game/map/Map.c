@@ -52,7 +52,11 @@ int computeMapDataSection(int x, int y) {
 
 void initMap(Map* m, SDL_Renderer* r) {
     printf("initializing map... ");
-    m->mapstring = malloc(MAP_WIDTH*MAP_HEIGHT*TILE_SIZE*3);
+    m->mapstring = malloc(MAP_WIDTH*MAP_HEIGHT*3);
+    for (int i=0; i<MAP_WIDTH*MAP_HEIGHT*3; i++) {
+        *(m->mapstring+i) = '0';
+    }
+    printf("mapstring created as empty. it is length %lu and is:\n <%s>\n",strlen(m->mapstring),m->mapstring);
     /*m->mapstring =  "00b00b00b00b00b00b00b00b00b00b00b00b00b00b00b00a00a00a00a00a00a00a00a00a00a00a00a00b00b00a00a00a00a00a00a00a00a00a00a00a00a00b00b00a00a00a00a00a00a00a00a00a00a00a00a00b00b00a00a00a00a00a00a00a00a00a00a00a00a00b00b00a00a00a00a00a00a00a00a00a00a00a00a00b00b00a00a00a00a00a00a00a00a00a00a00a00a00b00b00a00a00a00a00a00a00a00a00a00a00a00a00b00b00a00a00a00a00a00a00a00a00a00a00a00a00b00b00a00a00a00a00a00a00a00a00a00a00a00a00b00b00a00a00a00a00a00a00a00a00a00a00a00a00b00b00a00a00a00a00a00a00a00a00a00a00a00a00b00b00b00b00b00b00b00b00b00b00b00b00b00b00b";*/
     //printf("strlen of mapstring %lu\n",strlen(m->mapstring));
     m->renderer = r;
@@ -81,6 +85,7 @@ void initMap(Map* m, SDL_Renderer* r) {
             *(m->rendPlayers[i][j])=-1;
         }
     }
+    printf("map init'd\n");
 }
 
 void updateMapString(Map* m, char* changeTo) {
@@ -97,6 +102,7 @@ void clearRenderMapData(Map* m) {
 
 
 void renderMap(Map* m, Player* p) {
+    //pthread_mutex_lock(&guiLock);
     if (m==NULL)
         return;
     int x = *(p->absX);
@@ -135,5 +141,36 @@ void renderMap(Map* m, Player* p) {
         }
     }
     renderPlayer(p);
+    //pthread_mutex_unlock(&guiLock);
 
+}
+
+
+void setTile(Map* m, int x, int y, char* changeTo) {
+    printf("trying to change to %s\n",changeTo);
+    int offset = 3*y*MAP_WIDTH+3*x;
+    *(m->mapstring+offset) = *(changeTo);
+    *(m->mapstring+offset+1) = *(changeTo+1);
+    *(m->mapstring+offset+2) = *(changeTo+2);
+    strcpy(yourSettings->tempMapString,m->mapstring);
+}
+
+void getBase36(char* fill, int num) {
+    char ans[3];
+    int a = num;
+    while (a>0) {
+        int slot = 0;
+        int next = a/36;
+        while (next>0) {
+            next = next/36;
+            slot++;
+        }
+        int add = a/(pow(36,slot));
+        ans[slot]=add;
+
+    }
+    //a is 97
+    //z is 122
+
+    //46655
 }

@@ -13,6 +13,9 @@
 #define PLAYER_MOVEMENT_REQUEST "moveme" //502
 #define PLAYER_LOGOUT_REQUEST "logmeout" //503
 #define PLAYER_LOGIN_MAP_REQUEST "510"
+#define SEND_MAP_EDIT "512"
+#define SEND_PUBLIC_CHAT "514"
+
 
 //actions - from server
 #define SEND_PLAYER_ID "heresyourid" //504
@@ -23,4 +26,7 @@
 #define SHOW_PLAYER "hereis" //509
 #define SEND_PLAYER_MAP "511"
 #define HIDE_PLAYER "hereisnt"
+#define SEND_INFOBOX_MSG "513"
+#define PUBLIC_CHAT_FROM "515"
+
 #endif

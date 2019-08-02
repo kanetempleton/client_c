@@ -7,6 +7,7 @@
 #include "map/Map.h"
 #include "hud/HUD.h"
 #include "cpanel/CPanel.h"
+#include "infobox/InfoBox.h"
 
 #define NUM_GAME_BUTTONS 1
 typedef struct {
@@ -15,6 +16,8 @@ typedef struct {
     Button* buttons[NUM_GAME_BUTTONS];
     Map * gameMap;
     GameHUD* gameHUD;
+    int* cursorX;
+    int* cursorY;
 } GameState;
 ControlPanel* gameCPanel;
 GameState* newGameState();
@@ -24,4 +27,6 @@ void deleteGameState(GameState*s);
 void renderGameState(GameState* s);
 void processKeys_Game(GameState* s, int key);
 void processClicks_Game(GameState* s, int x, int y);
+void processMouseMotion_Game(GameState* s, int x, int y);
+void setCursor(int id);
 #endif

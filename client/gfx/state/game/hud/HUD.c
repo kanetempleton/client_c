@@ -4,6 +4,8 @@
 #include "../map/Map.h"
 #include "menus/SettingsMenu.h"
 #include "../../../GUI.h"
+#include "../../../../net/client.h"
+#include "../../../../net/communication/SendMessage.h"
 
 
 GameHUD* newHUD() {
@@ -21,7 +23,6 @@ void initHUD(GameHUD* hud, SDL_Renderer* r) {
         strcat(fileName,".png");
         SDL_Surface* iconSurf = IMG_Load(fileName);
         hud->menuIcon[i] = SDL_CreateTextureFromSurface(r,iconSurf);
-        hud->menuIcon2[i] = SDL_CreateTextureFromSurface(r,iconSurf);
         SDL_FreeSurface(iconSurf);
         free(iconNum);
         free(fileName);
@@ -48,17 +49,52 @@ void renderHUD(GameHUD* hud, SDL_Renderer* r) {
                             HUD_START_Y+TILE_SIZE*(*(hud->activeMenu)/(NUMBER_OF_MENUS/2))+1,
                             TILE_SIZE-2,TILE_SIZE-2};
 
-    SDL_RenderCopy(Main_Renderer,hud->frameImage,NULL,&frameRect);
+    SDL_RenderCopy(Main_Renderer,yourPlayer->guiSprites->hudframe,NULL,&frameRect);
     SDL_RenderCopy(Main_Renderer,hud->selectIcon,NULL,&selectRect);
 
     for (int i=0; i<NUMBER_OF_MENUS; i++) {
         SDL_Rect iconRect = {HUD_START_X+TILE_SIZE*(i%(NUMBER_OF_MENUS/2))+1,
                                 HUD_START_Y+TILE_SIZE*(i/(NUMBER_OF_MENUS/2))+1,
                                 TILE_SIZE-2,TILE_SIZE-2};
-                                SDL_Rect iconRect2 = {HUD_START_X+TILE_SIZE*(i%(NUMBER_OF_MENUS/2))+1,
-                                                        64+HUD_START_Y+TILE_SIZE*(i/(NUMBER_OF_MENUS/2))+1,
-                                                        TILE_SIZE-2,TILE_SIZE-2};
-        SDL_RenderCopy(Main_Renderer,hud->menuIcon[i],NULL,&iconRect);
+        switch (i) {
+            case 0:
+                SDL_RenderCopy(Main_Renderer,yourPlayer->guiSprites->hud0,NULL,&iconRect);
+                break;
+            case 1:
+                SDL_RenderCopy(Main_Renderer,yourPlayer->guiSprites->hud1,NULL,&iconRect);
+                break;
+            case 2:
+                SDL_RenderCopy(Main_Renderer,yourPlayer->guiSprites->hud2,NULL,&iconRect);
+                break;
+            case 3:
+                SDL_RenderCopy(Main_Renderer,yourPlayer->guiSprites->hud3,NULL,&iconRect);
+                break;
+            case 4:
+                SDL_RenderCopy(Main_Renderer,yourPlayer->guiSprites->hud4,NULL,&iconRect);
+                break;
+            case 5:
+                SDL_RenderCopy(Main_Renderer,yourPlayer->guiSprites->hud5,NULL,&iconRect);
+                break;
+            case 6:
+                SDL_RenderCopy(Main_Renderer,yourPlayer->guiSprites->hud6,NULL,&iconRect);
+                break;
+            case 7:
+                SDL_RenderCopy(Main_Renderer,yourPlayer->guiSprites->hud7,NULL,&iconRect);
+                break;
+            case 8:
+                SDL_RenderCopy(Main_Renderer,yourPlayer->guiSprites->hud8,NULL,&iconRect);
+                break;
+            case 9:
+                SDL_RenderCopy(Main_Renderer,yourPlayer->guiSprites->hud9,NULL,&iconRect);
+                break;
+            case 10:
+                SDL_RenderCopy(Main_Renderer,yourPlayer->guiSprites->hud10,NULL,&iconRect);
+                break;
+            case 11:
+                SDL_RenderCopy(Main_Renderer,yourPlayer->guiSprites->hud11,NULL,&iconRect);
+                break;
+        }
+        //SDL_RenderCopy(Main_Renderer,hud->menuIcon[i],NULL,&iconRect);
         //SDL_RenderCopy(Main_Renderer,hud->menuIcon2[i],NULL,&iconRect2);
     }
     switch (*(hud->activeMenu)) {
@@ -112,7 +148,8 @@ void processClicks_HUD(GameHUD* hud, int clickX, int clickY) {
                     printf("[player info menu] Not supported.\n");
                     break;
                 case LOGOUT_MENU_ID:
-                    printf("[logout menu] Not supported.\n");
+                    //printf("[logout menu] Not supported.\n");
+                    sendLogoutRequest();
                     break;
             }
     }
@@ -128,4 +165,5 @@ void processClicks_HUD(GameHUD* hud, int clickX, int clickY) {
 
 void initializeAllMenus(GameHUD* hud) {
     initSettingsMenu(hud->hudMenu[SETTINGS_MENU_ID]);
+    initPlayerInfoMenu(hud->hudMenu[PLAYERINFO_MENU_ID]);
 }
