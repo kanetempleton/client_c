@@ -18,4 +18,5 @@ char* getEntityImagePath(Entity* e) {
     }
     return "data/assets/entity/player.png";
 }
+
 #endif

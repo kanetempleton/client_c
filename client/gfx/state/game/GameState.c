@@ -52,6 +52,7 @@ void renderGameState(GameState* gs) {
     if (*(yourSettings->cursorID) >=0) {
         SDL_RenderCopy(gs->stateRenderer,yourPlayer->guiSprites->gameCursor,NULL,&cursorRect);
     }
+    renderEntities(mainGUI->entityManager,Main_Renderer);
     //renderButton(gs->buttons[0],gs->stateRenderer);
 }
 
@@ -103,6 +104,7 @@ void processClicks_Game(GameState* gs, int clickX, int clickY) {
     processClicks_HUD(gs->gameHUD,clickX,clickY);
     processClicks_CPanel(gameCPanel,clickX,clickY);
     processClicks_infoBox(gameInfoBox,clickX,clickY);
+    processEntityClicks(mainGUI->entityManager,clickX,clickY);
     if (clickX<(TILE_SIZE*MAP_WIDTH) && clickY<(TILE_SIZE*MAP_HEIGHT)) {
         if (*(yourSettings->cursorID) > -1) {
             int scrX = clickX/TILE_SIZE;

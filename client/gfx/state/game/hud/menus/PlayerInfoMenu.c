@@ -1,4 +1,6 @@
 #include "PlayerInfoMenu.h"
+#include "../../entity/Player.h"
+#include "../../../../GUI.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -41,7 +43,7 @@ void renderPlayerInfoMenu(HUDMenu* men, SDL_Renderer* r) {
         free(fill);
     }
     for (int i=0; i<MENU_PLAYERINFO_NUM_SPRITES; i++)
-        renderSprite(yourPlayer->guiSprites->menu_playerInfoSprites[i]);
+        renderSprite(yourPlayer->guiSprites->menu_playerInfoSprites[i],r);
 }
 void processClicks_PlayerInfo(HUDMenu* men, int clickX, int clickY) {
 

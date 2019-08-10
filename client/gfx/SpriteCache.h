@@ -45,10 +45,13 @@ typedef struct {
     //user interface
     GameSprite* menu_playerInfoSprites[MENU_PLAYERINFO_NUM_SPRITES];
 
+    //ameSprite* npcSprites[]
+
     TTF_Font* Arial;
     TTF_Font* AndaleMono;
     SDL_Color* White;
     SDL_Color* Black;
+    SDL_Color* Cyan;
 
 } SpriteCache;
 

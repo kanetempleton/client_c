@@ -20,25 +20,26 @@ int main(int argc, char *argv[]) {
         dontusethegui = strtol(argv[1],NULL,10);
 
     Client * mainClient = newClient();
-    GUI * gui = newGUI();
+    //GUI * gui = newGUI();
+    mainGUI = newGUI();
     //if (dontusethegui == 1)
         //deleteGUI(gui);
 
     //startClient((void*)client);a
     if (dontusethegui == 0)
-        initGUI(gui);
+        initGUI(mainGUI);
     //startGUI(gui);
     pthread_t clientThread;
     //pthread_t guiThread; nvm we dont need this
 
     ReplyHandler* rh = newReplyHandler();
-    initReplyHandler(rh,gui);
+    initReplyHandler(rh,mainGUI);
     initClient(mainClient,rh,0);
 
     int rc1 = pthread_create(&clientThread,NULL,&startClient,(void*)mainClient);
     void * rval1;
-    if (dontusethegui == 0)
-        loadGUIWindow(gui);
+    if (!dontusethegui)
+        loadGUIWindow(mainGUI);
     rc1 = pthread_join(clientThread, &rval1);
     //exit(0);
     /*

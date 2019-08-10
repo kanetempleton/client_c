@@ -6,6 +6,7 @@
 #include "../../../GUI.h"
 #include "../../../../net/client.h"
 #include "../../../../net/communication/SendMessage.h"
+#include "menus/PlayerInfoMenu.h"
 
 
 GameHUD* newHUD() {

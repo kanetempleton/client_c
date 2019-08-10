@@ -28,5 +28,6 @@
 #define HIDE_PLAYER "hereisnt"
 #define SEND_INFOBOX_MSG "513"
 #define PUBLIC_CHAT_FROM "515"
+#define SHOW_NPC "516"
 
 #endif

@@ -4,6 +4,7 @@
 #include "state/game/GameState.h"
 #include "state/game/entity/Player.h"
 #include "SpriteCache.h"
+#include "EntityManager.h"
 #include <pthread.h>
 
 #define GUI_WINDOW_WIDTH 640
@@ -24,12 +25,14 @@ typedef struct {
     LoginState* loginState;
     GameState* gameState;
     int * currentState;
+    EntityManager* entityManager;
 } GUI;
 
 Player * yourPlayer;
 GUISettings* yourSettings;
 SDL_Renderer* Main_Renderer;
 SpriteCache* spriteCache;
+GUI* mainGUI;
 GUI * newGUI();
 void initGUI(GUI * me);
 void deleteGUI(GUI * me);

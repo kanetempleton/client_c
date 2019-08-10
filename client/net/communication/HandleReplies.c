@@ -61,10 +61,17 @@ void handleReply(ReplyHandler* rh, char* repl) {
         int throwInfoboxMsg = 0;
         int publicChatSend = 0;
         int publicChatRecv = 0;
+        int showNPC = 0;
+        int showNPCid = 0;
         int x=250;
         int y=250;
         char* publicChatFrom;
         char* publicChatMsg;
+        int npcLvl = 0;
+        int npcOptions[NUM_NPC_CLICK_OPTIONS];
+        for (int i=0; i<NUM_NPC_CLICK_OPTIONS; i++) {
+            npcOptions[i]=0;
+        }
         while( token != NULL ) {
             if (strcmp(token,HALT)==0) {
                 t=0;
@@ -110,6 +117,9 @@ void handleReply(ReplyHandler* rh, char* repl) {
                 else if (strcmp(token,PUBLIC_CHAT_FROM)==0) {
                     publicChatRecv = 1;
                 }
+                else if (strcmp(token,SHOW_NPC)==0) {
+                    showNPC=1;
+                }
             }
             if (t==1) { //2nd word in packet
                 if (getInfo || updatePos) {
@@ -152,6 +162,9 @@ void handleReply(ReplyHandler* rh, char* repl) {
                     publicChatFrom = malloc(strlen(token)+1);
                     strcpy(publicChatFrom,token);
                 }
+                else if (showNPC) {
+                    showNPCid=strtol(token,NULL,10);
+                }
             }
             if (t==2) { //3rd word
                 if (getInfo) {
@@ -178,7 +191,10 @@ void handleReply(ReplyHandler* rh, char* repl) {
                             *(yourPlayer->mapSection) = sec;
                             clearRenderMapData(rh->gui->gameState->gameMap);
                             sendInitialMapRequest();
+                            deleteScreenNPCs(rh->gui->entityManager);
                         }
+
+
 
                     }
                 }
@@ -210,6 +226,9 @@ void handleReply(ReplyHandler* rh, char* repl) {
                     pthread_mutex_unlock(&clientLock);
                     break;
                 }
+                else if (showNPC) {
+                    showX = strtol(token,NULL,10);
+                }
             }
             if (t==3) { //4th word
                 if (showPlr) {
@@ -220,14 +239,19 @@ void handleReply(ReplyHandler* rh, char* repl) {
                     pthread_mutex_unlock(&clientLock);
                     *(rh->gui->gameState->gameMap->rendPlayers[showX%MAP_WIDTH][showY%MAP_HEIGHT])=-1;
                 }
-                /*else if (publicChatRecv) {
-                    addEntryToInfoBox(gameInfoBox, publicChatFrom, token);
-                    free(publicChatFrom);
-                }*/
+                else if (showNPC) {
+                    showY = strtol(token,NULL,10);
+
+                }
             }
             if (t==4) { //5th word
                 if (showPlr) {
                     oldX = strtol(token,NULL,10);
+                }
+                else if (showNPC) {
+                    npcLvl=strtol(token,NULL,10);
+                    //printf("[NPC] show %d at %d,%d\n",showNPCid,showX,showY);
+                    //createNPC(mainGUI->entityManager,showNPCid,showX,showY,0,token);
                 }
             }
             if (t==5) { //6th word
@@ -237,21 +261,37 @@ void handleReply(ReplyHandler* rh, char* repl) {
                     if (showPlayerID!=*(yourPlayer->playerId)) {
                         if ((showX/MAP_WIDTH)==((*(yourPlayer->absX))/MAP_WIDTH) &&
                             (showY/MAP_HEIGHT)==((*(yourPlayer->absY))/MAP_HEIGHT)) {
-                                printf("player is in your box[%d,%d]\n",showX%MAP_WIDTH,showY%MAP_HEIGHT);
                                 if (oldX>=0&&oldY>=0) {
-                                    printf("chode\n");
                                     *(rh->gui->gameState->gameMap->rendPlayers[oldX%MAP_WIDTH][oldY%MAP_HEIGHT])=-1;
-                                    printf("cocks\n");
                                 }
-                                printf("uhhhh...???");
                                 for (int i=0; i<MAP_WIDTH; i++)  {
                                     for (int j=0; j<MAP_HEIGHT; j++) {
                                         printf("map %d %d player = %d\n",i,j,*(rh->gui->gameState->gameMap->rendPlayers[i][j]));
                                     }
                                 }
                                 *(rh->gui->gameState->gameMap->rendPlayers[showX%MAP_WIDTH][showY%MAP_HEIGHT])=1;
-                                printf("yowhat t hefuck\n");
                             }
+                    }
+                }
+                else if (showNPC) {
+                    for (int i=0; i<NUM_NPC_CLICK_OPTIONS; i++) {
+                        char* fme = malloc(2);
+                        fme[0]=token[i];
+                        fme[1]='\0';
+                        //strcpy(fme,token[i]);
+                        npcOptions[i]=strtol(fme,NULL,10);
+                        free(fme);
+                        printf("setting option %d to %d\n",i,npcOptions[i]);
+                    }
+                }
+            }
+            if (t==6) { //7th word
+                int make = createNPC(mainGUI->entityManager,showNPCid,showX,showY,0,token);
+                setNPCLevel(getNPC(mainGUI->entityManager,make),npcLvl);
+                for (int i=0; i<NUM_NPC_CLICK_OPTIONS; i++) {
+                    if (npcOptions[i]) {
+                        printf("option is %d\n",npcOptions[i]);
+                        enableNPCClickOption(getNPC(mainGUI->entityManager,make),i);
                     }
                 }
             }

@@ -7,6 +7,7 @@
 #include "text/KeyboardHandler.h"
 #include "text/KeyboardConstants.h"
 
+
 int quit = 0;
 
 GUI * newGUI() {
@@ -37,6 +38,9 @@ void initGUI(GUI * me) {
     yourSettings->tempMapString = malloc(MAP_WIDTH*MAP_HEIGHT*3+1);
     yourSettings->holdingMouse = malloc(sizeof(int));
     *(yourSettings->holdingMouse) = 0;
+
+    me->entityManager = newEntityManager();
+    initEntities(me->entityManager);
 
     //guiSprites = newSpriteCache();
     //initializeSpriteCache(guiSprites);

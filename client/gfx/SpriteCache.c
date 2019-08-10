@@ -75,13 +75,16 @@ void initializeSpriteCache(SpriteCache* s, SDL_Renderer* r) {
     s->AndaleMono = malloc(sizeof(TTF_Font*));
     s->White = malloc(sizeof(SDL_Color));
     s->Black = malloc(sizeof(SDL_Color));
+    s->Cyan = malloc(sizeof(SDL_Color));
     s->Arial = TTF_OpenFont("data/assets/fonts/Arial.ttf",16);
     s->AndaleMono = TTF_OpenFont("data/assets/fonts/AndaleMono.ttf",12);
 
     SDL_Color white = {255,255,255};
     SDL_Color black = {0,0,0};
+    SDL_Color cyan = {0,255,255};
     *(s->White) = white;
     *(s->Black) = black;
+    *(s->Cyan) = cyan;
 
     for (int i=0; i<INFOBOX_NUM_SPRITES; i++) {
     //    loadSurf = IMG_Load("data/assets/interface/hud/icons/0.png");
